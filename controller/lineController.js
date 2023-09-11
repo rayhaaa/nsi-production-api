@@ -8,9 +8,9 @@ const {
     getLineSatu,
     getLineDua,
     getLineTiga
-} = require('../database');
+} = require('../data/database');
 
-const response = require('../response');
+const response = require('../utils/response')
 
 const getDataCamController = async (req, res) => {
     try {
