@@ -4,7 +4,7 @@ function emitSocket(type, result) {
             let data = {percen: 0.00001}
             return data
         }
-        return result
+        return result[0]
     }
 
     if (type == 'line') {

@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
 
     const emitDataInterval = setInterval(() => {
         emitData(socket)
-    }, 30000)
+    }, 10000)
 
     socket.on('disconnect', () => {
         console.log('frontend disconnected')

@@ -1,5 +1,5 @@
 const response = (statusCode, data, message, type, res) => {
-    if (data == 0) {
+    if (data.length == 0) {
         if (type == 'percen') {
             data = [{percen: 0.00001}];
         } else if (type == 'home') {
@@ -20,18 +20,7 @@ const response = (statusCode, data, message, type, res) => {
             ]
         }
         else {
-            data = [
-                {
-                    mcn: null,
-                    groupMsn: null,
-                    itemCode: null,
-                    planQty: null,
-                    receiveQty: null,
-                    percen: null,
-                    wh: null,
-                    next: null,
-                },
-            ];
+            data = null
         }
     }
     res.status(statusCode).json({

@@ -49,6 +49,8 @@ const getDataCncTigaController = async (req, res) => {
     try {
         let result = await getDataCncTiga()
 
+        console.log(result)
+
         response(200, result, 'data produksi cnc 3, hari ini', 'percen', res)
     } catch (error) {
         console.log(error)
@@ -70,6 +72,8 @@ const getAllLineController = async (req, res) => {
 const getCamLineController = async (req, res) => {
     try {
         let result = await getCamLine()
+
+        console.log(result)
 
         response(200, result, 'data produksi per mesin line CAM', 'line', res)
     } catch (error) {

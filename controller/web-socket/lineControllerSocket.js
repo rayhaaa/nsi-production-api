@@ -26,8 +26,6 @@ async function emitData(socket) {
         data.production.cncDua = emitSocket('percen', cncDua)
         data.production.cncTiga = emitSocket('percen', cncTiga)
 
-        console.log(data)
-        console.log('gap')
         socket.emit('data', data)
 
         data.production.cam = null
