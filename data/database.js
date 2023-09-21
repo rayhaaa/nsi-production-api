@@ -1,11 +1,11 @@
 const sql = require('mssql');
 const config = require('./dbConfig');
 
-function getFormatDate(now) {
+function getFormatDate(now, isStartMonth = false) {
     const year = now.getFullYear();
     const month = now.getMonth()+1;
     const hour = now.getHours();
-    const date = (hour < 10) ? now.getDate()-1 : now.getDate();
+    const date = isStartMonth ? '01' : (hour < 10) ? now.getDate()-1 : now.getDate();
     const dateNow = `${month}-${date}-${year} `;
     return dateNow;
 }
@@ -110,38 +110,6 @@ async function getAllLine() {
         T0.[Status] ,
         T0.[UserSign]
         Order by Y.U_MIS_CodeGroup asc`;
-        // const query = `SELECT
-        // T0.[U_MIS_NoMesin] as 'mcn',
-        // Y.U_MIS_CodeGroup 'groupMsn',
-        // T0.[ItemCode] as 'itemCode',
-        // T0.[PlannedQty] as 'planQty',
-        // T0.[CmpltQty] as 'receiveQty',
-        // T0.[CmpltQty]/T0.[PlannedQty] * 100 as 'percen',
-        // T0.[Warehouse] as 'wh',
-        // T0.[U_MIS_NextProc] as 'next'
-        // FROM OWOR T0
-        // LEFT JOIN WOR1 T1 ON T0.[DocEntry] = T1.[DocEntry]
-        // LEFT JOIN [@MASTERMESIN] Y on T0.U_MIS_NoMesin = Y.Code
-        // cross JOIN (Select SUM(A.CmpltQty) CmpltQty , sum(A.PlannedQty) PlannedQty
-        //             from OWOR A
-        //             LEFT JOIN [@MASTERMESIN] Y on A.U_MIS_NoMesin = Y.Code
-        //             where A.[UserSign] =19 and A.[Warehouse] = 'WHWIPMF1' and A.[Status] not in ('C') and A.[PostDate] >= '${now}' and A.[PostDate] <= '${now}'
-        //             ) X
-        // WHERE T0.[UserSign] in (19,22,21) and T0.[Warehouse] = 'WHWIPMF1' and T0.[Status] not in ('C') and T0.[PostDate] >= '${now}' and T0.[PostDate] <= '${now}'
-
-        // Group by
-        // T0.[U_MIS_NoMesin],
-        // Y.U_MIS_CodeGroup ,
-        // T0.[DocNum] ,
-        // T0.[PostDate] ,
-        // T0.[ItemCode],
-        // T0.[PlannedQty],
-        // T0.[CmpltQty] ,
-        // T0.[Warehouse],
-        // T0.[U_MIS_NextProc] ,
-        // T0.[Status] ,
-        // T0.[UserSign]
-        // Order by Y.U_MIS_CodeGroup asc`;
 
         await sql.connect(config);
         let result = await sql.query(query);
@@ -337,6 +305,106 @@ async function getLineTiga() {
     }
 }
 
+// async function getHistory() {
+//     try {
+//         let now = getFormatDate(new Date());
+//         let start = getFormatDate(new Date(), true);
+//         const query = `/* SELECT * FROM OFPR T0 */
+//         /* SELECT * FROM [@MASTERMESIN] Y  */
+
+//         Declare @StartDate Date
+//         Declare @EndDate Date
+//         declare @GroupMsn nvarchar(40)
+
+//         SET @StartDate = /* T0.F_RefDate */ '[%0]'
+//         SET @EndDate = /* T0.T_RefDate */ '[%1]'
+//         SET @GroupMsn = /* Y.U_MIS_CodeGroup  */ '[%2]'
+
+//         if isnull(@GroupMsn,'')='' SET @GroupMsn = 'All'
+
+//         SELECT
+//         T0.[U_MIS_NoMesin] as 'Mcn',
+//         Y.U_MIS_CodeGroup 'Group Msn',
+//         T0.[DocNum] as 'Doc. Num PDO',
+//         T0.[PostDate] as 'PDO Date',
+//         T0.[ItemCode],
+//         T0.[PlannedQty] as 'plan. Qty',
+//         T0.[CmpltQty] as 'Receive Qty',
+//         T0.[CmpltQty]/T0.[PlannedQty] * 100 as 'Percen %',
+//         avg(x.CmpltQty/x.PlannedQty) * 100 'Percen % AVG' ,
+//         T0.[Warehouse] as 'WH',
+
+//         T0.[U_MIS_NextProc] as 'Next',
+//         T0.[Status] as 'Sts',
+//         T0.[UserSign] as 'PIC'
+//         FROM OWOR T0
+//         LEFT JOIN WOR1 T1 ON T0.[DocEntry] = T1.[DocEntry]
+//         LEFT JOIN [@MASTERMESIN] Y on T0.U_MIS_NoMesin = Y.Code
+//         cross JOIN (Select SUM(A.CmpltQty) CmpltQty , sum(A.PlannedQty) PlannedQty
+//         from OWOR A
+//         LEFT JOIN [@MASTERMESIN] Y on A.U_MIS_NoMesin = Y.Code
+//         where A.[UserSign] =19 and A.[Warehouse] = 'WHWIPMF1' and A.[Status] not in ('C') and A.[PostDate] >= '${start}' and A.[PostDate] <= '${now}' and case when isnull (@GroupMsn , 'ALL') = 'ALL' then '1' else y.U_MIS_CodeGroup end = case when isnull(@GroupMsn,'All')='ALL' then '1' else @GroupMsn end
+//         ) X
+//         WHERE T0.[UserSign] in (19,22,21) and T0.[Warehouse] = 'WHWIPMF1' and T0.[Status] not in ('C') and T0.[PostDate] >= '${start}' and T0.[PostDate] <= '${now}'  and case when isnull (@GroupMsn , 'ALL') = 'ALL' then '1' else y.U_MIS_CodeGroup end = case when isnull(@GroupMsn,'All')='ALL' then '1' else @GroupMsn end
+//         `
+
+//         await sql.connect(config);
+//         let result = await sql.query(query);
+
+//         return result.recordsets;
+//     } catch (error) {
+//         console.error();
+//         return error;
+//     }
+// }
+
+async function getHistory() {
+    try {
+        let now = getFormatDate(new Date());
+        let start = getFormatDate(new Date(), true);
+        const query = `SELECT
+        T0.[U_MIS_NoMesin] as 'mcn',
+        Y.U_MIS_CodeGroup 'groupMsn',
+        T0.[ItemCode] as 'itemCode',
+        T0.[PlannedQty] as 'planQty',
+        T0.[CmpltQty] as 'receiveQty',
+        T0.[CmpltQty]/T0.[PlannedQty] * 100 as 'percen',
+        T0.[Warehouse] as 'wh',
+        T0.[U_MIS_NextProc] as 'next'
+        FROM OWOR T0
+        LEFT JOIN WOR1 T1 ON T0.[DocEntry] = T1.[DocEntry]
+        LEFT JOIN [@MASTERMESIN] Y on T0.U_MIS_NoMesin = Y.Code
+        cross JOIN (Select SUM(A.CmpltQty) CmpltQty , sum(A.PlannedQty) PlannedQty
+                    from OWOR A
+                    LEFT JOIN [@MASTERMESIN] Y on A.U_MIS_NoMesin = Y.Code
+                    where A.[UserSign] =19 and A.[Warehouse] = 'WHWIPMF1' and A.[Status] not in ('C') and A.[PostDate] >= '${start}' and A.[PostDate] <= '${now}'
+                    ) X
+        WHERE T0.[UserSign] in (19,22,21) and T0.[Warehouse] = 'WHWIPMF1' and T0.[Status] not in ('C') and T0.[PostDate] >= '${start}' and T0.[PostDate] <= '${now}'
+
+        Group by
+        T0.[U_MIS_NoMesin],
+        Y.U_MIS_CodeGroup ,
+        T0.[DocNum] ,
+        T0.[PostDate] ,
+        T0.[ItemCode],
+        T0.[PlannedQty],
+        T0.[CmpltQty] ,
+        T0.[Warehouse],
+        T0.[U_MIS_NextProc] ,
+        T0.[Status] ,
+        T0.[UserSign]
+        Order by Y.U_MIS_CodeGroup asc`;
+
+        await sql.connect(config);
+        let result = await sql.query(query);
+
+        return result.recordsets;
+    } catch (error) {
+        console.error();
+        return error;
+    }
+}
+
 module.exports = {
     getDataCam,
     getDataCncSatu,
@@ -346,5 +414,6 @@ module.exports = {
     getCamLine,
     getLineSatu,
     getLineDua,
-    getLineTiga
+    getLineTiga,
+    getHistory,
 };

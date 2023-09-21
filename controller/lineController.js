@@ -7,7 +7,8 @@ const {
     getCamLine,
     getLineSatu,
     getLineDua,
-    getLineTiga
+    getLineTiga,
+    getHistory,
 } = require('../data/database');
 
 const response = require('../utils/response')
@@ -115,6 +116,18 @@ const getLineTigaController = async (req, res) => {
     }
 }
 
+const getHistoryLineController = async (req, res) => {
+try {
+    let result = await getHistory()
+
+    res.send(result)
+
+    // response(200, result, 'data produksi per mesin line 2', 'line', res)
+} catch (error) {
+
+}
+}
+
 module.exports = {
     getDataCamController,
     getDataCncSatuController,
@@ -124,5 +137,6 @@ module.exports = {
     getCamLineController,
     getLineSatuController,
     getLineDuaController,
-    getLineTigaController
+    getLineTigaController,
+    getHistoryLineController,
 }

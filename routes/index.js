@@ -10,7 +10,8 @@ const {
     getCamLineController,
     getLineSatuController,
     getLineDuaController,
-    getLineTigaController
+    getLineTigaController,
+    getHistoryLineController
 } = require('../controller/lineController')
 
 
@@ -42,5 +43,8 @@ router.get('/line-2', getLineDuaController)
 
 // Menampilkan data produksi per mesin di line cnc 3 hari ini
 router.get('/line-3', getLineTigaController)
+
+// Menampilkan history produksi per line
+router.get('/history-line', getHistoryLineController)
 
 module.exports = router
